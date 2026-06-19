@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pixid Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --border: #2a2a2a;
+      --accent: #c8a96e;
+      --accent-dim: rgba(200,169,110,0.12);
+      --text: #f0ece4;
+      --text-muted: #7a7570;
+      --radius: 4px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Prompt', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 48px 32px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-style: italic;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .photo-count {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    #count-num {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--accent);
+      display: block;
+      line-height: 1;
+    }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: var(--radius);
+      font-family: 'Prompt', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #0d0d0d;
+      font-weight: 600;
+    }
+
+    .btn-accent:hover { opacity: 0.85; }
+
+    .spacer { flex: 1; }
+
+    /* ── STATUS BAR ── */
+    #status-bar {
+      display: none;
+      padding: 12px 32px;
+      background: var(--accent-dim);
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--accent);
+      align-items: center;
+      gap: 10px;
+    }
+
+    #status-bar.visible { display: flex; }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid var(--accent-dim);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── GRID ── */
+    .gallery-wrap {
+      padding: 32px;
+    }
+
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 3px;
+    }
+
+    .thumb {
+      aspect-ratio: 1;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      background: var(--surface);
+    }
+
+    .thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease, filter 0.3s ease;
+      filter: brightness(0.92);
+    }
+
+    .thumb:hover img {
+      transform: scale(1.04);
+      filter: brightness(1);
+    }
+
+    .thumb-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      display: flex;
+      align-items: flex-end;
+      padding: 12px;
+    }
+
+    .thumb:hover .thumb-overlay { opacity: 1; }
+
+    .thumb-name {
+      font-size: 11px;
+      color: #fff;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* ── EMPTY STATE ── */
+    #empty-state {
+      display: none;
+      text-align: center;
+      padding: 80px 32px;
+      color: var(--text-muted);
+    }
+
+    #empty-state.visible { display: block; }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+
+    /* ── LIGHTBOX ── */
+    #lightbox {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #lightbox.open { display: flex; }
+
+    #lb-img {
+      max-width: 90vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 2px;
+    }
+
+    .lb-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 20px 32px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    #lb-filename {
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .lb-close {
+      position: fixed;
+      top: 24px; right: 24px;
+      background: rgba(255,255,255,0.08);
+      border: none;
+      color: var(--text);
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .lb-close:hover { background: rgba(255,255,255,0.15); }
+
+    .lb-nav {
+      position: fixed;
+      top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,0.06);
+      border: none;
+      color: var(--text);
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .lb-nav:hover { background: rgba(255,255,255,0.14); }
+    #lb-prev { left: 20px; }
+    #lb-next { right: 20px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      header { padding: 28px 16px 20px; }
+      .toolbar { padding: 14px 16px; }
+      .gallery-wrap { padding: 16px; }
+      #gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 2px; }
+      .brand-name { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="brand-eyebrow">Event Gallery</span>
+    <span class="brand-name">Pixid</span>
+  </div>
+  <div class="photo-count">
+    <span id="count-num">—</span>
+    ภาพทั้งหมด
+  </div>
+</header>
+
+<div class="toolbar">
+  <button class="btn btn-outline" onclick="loadPhotos()">
+    ↻ รีเฟรช
+  </button>
+  <div class="spacer"></div>
+  <a id="drive-link" href="#" target="_blank" class="btn btn-accent">
+    เปิดใน Drive ↗
+  </a>
+</div>
+
+<div id="status-bar">
+  <div class="spinner"></div>
+  <span id="status-text">กำลังโหลดภาพ...</span>
+</div>
+
+<div class="gallery-wrap">
+  <div id="gallery"></div>
+  <div id="empty-state">
+    <div class="empty-icon">📷</div>
+    <p>ยังไม่มีภาพในขณะนี้</p>
+    <p style="margin-top:8px;font-size:13px;">ภาพจะปรากฏที่นี่หลังช่างภาพอัปโหลด</p>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <button class="lb-nav" id="lb-prev" onclick="navLightbox(-1)">‹</button>
+  <img id="lb-img" src="" alt="" />
+  <button class="lb-nav" id="lb-next" onclick="navLightbox(1)">›</button>
+  <div class="lb-bar">
+    <span id="lb-filename"></span>
+    <a id="lb-download" href="#" download class="btn btn-accent" style="font-size:12px;padding:6px 14px;">
+      ดาวน์โหลด ↓
+    </a>
+  </div>
+</div>
+
+<script>
+  // ══════════════════════════════════════════
+  //  ⚙️  CONFIG — แก้ค่าตรงนี้เท่านั้น
+  // ══════════════════════════════════════════
+  const FOLDER_ID = "13l00Iv4u-xb0iatGtXqO_ehhQ3ao7ROU";
+  const API_KEY   = "5f7395b1c9e21f48d125ffc4d31cec8f1238b410";   // ← ใส่ API Key ที่นี่
+  // ══════════════════════════════════════════
+
+  let photos = [];
+  let currentIndex = 0;
+
+  // Set Drive folder link
+  document.getElementById("drive-link").href =
+    `https://drive.google.com/drive/folders/${FOLDER_ID}`;
+
+  async function loadPhotos() {
+    showStatus("กำลังโหลดภาพ...");
+    const gallery = document.getElementById("gallery");
+    gallery.innerHTML = "";
+
+    const imageTypes = ["image/jpeg","image/png","image/webp","image/gif","image/bmp"];
+    const mimeQuery  = imageTypes.map(m => `mimeType='${m}'`).join(" or ");
+    const url = `https://www.googleapis.com/drive/v3/files?` +
+      `q=(${mimeQuery}) and '${FOLDER_ID}' in parents and trashed=false` +
+      `&fields=files(id,name,mimeType,thumbnailLink,webContentLink)` +
+      `&orderBy=createdTime desc` +
+      `&pageSize=200` +
+      `&supportsAllDrives=true` +
+      `&includeItemsFromAllDrives=true` +
+      `&key=${API_KEY}`;
+
+    try {
+      const res  = await fetch(url);
+      const data = await res.json();
+
+      if (data.error) {
+        showStatus(`❌ ${data.error.message}`, false);
+        return;
+      }
+
+      photos = data.files || [];
+      document.getElementById("count-num").textContent = photos.length;
+
+      if (photos.length === 0) {
+        hideStatus();
+        document.getElementById("empty-state").classList.add("visible");
+        return;
+      }
+
+      document.getElementById("empty-state").classList.remove("visible");
+
+      photos.forEach((file, i) => {
+        const thumb = document.createElement("div");
+        thumb.className = "thumb";
+
+        // thumbnail URL — Google Drive thumbnail (ขนาด w400)
+        const thumbUrl = file.thumbnailLink
+          ? file.thumbnailLink.replace("=s220", "=s400")
+          : `https://drive.google.com/thumbnail?id=${file.id}&sz=w400`;
+
+        thumb.innerHTML = `
+          <img src="${thumbUrl}" alt="${file.name}" loading="lazy" />
+          <div class="thumb-overlay">
+            <span class="thumb-name">${file.name}</span>
+          </div>`;
+
+        thumb.addEventListener("click", () => openLightbox(i));
+        gallery.appendChild(thumb);
+      });
+
+      hideStatus();
+    } catch (err) {
+      showStatus(`❌ โหลดไม่ได้: ${err.message}`, false);
+    }
+  }
+
+  function openLightbox(index) {
+    currentIndex = index;
+    updateLightbox();
+    document.getElementById("lightbox").classList.add("open");
+    document.addEventListener("keydown", onKey);
+  }
+
+  function closeLightbox() {
+    document.getElementById("lightbox").classList.remove("open");
+    document.removeEventListener("keydown", onKey);
+  }
+
+  function navLightbox(dir) {
+    currentIndex = (currentIndex + dir + photos.length) % photos.length;
+    updateLightbox();
+  }
+
+  function updateLightbox() {
+    const file = photos[currentIndex];
+    const imgUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w1600`;
+    document.getElementById("lb-img").src = imgUrl;
+    document.getElementById("lb-filename").textContent = file.name;
+    document.getElementById("lb-download").href =
+      `https://drive.google.com/uc?export=download&id=${file.id}`;
+  }
+
+  function onKey(e) {
+    if (e.key === "ArrowRight") navLightbox(1);
+    if (e.key === "ArrowLeft")  navLightbox(-1);
+    if (e.key === "Escape")     closeLightbox();
+  }
+
+  // Click outside image to close
+  document.getElementById("lightbox").addEventListener("click", function(e) {
+    if (e.target === this) closeLightbox();
+  });
+
+  function showStatus(msg, loading = true) {
+    const bar = document.getElementById("status-bar");
+    document.getElementById("status-text").textContent = msg;
+    bar.querySelector(".spinner").style.display = loading ? "block" : "none";
+    bar.classList.add("visible");
+  }
+
+  function hideStatus() {
+    document.getElementById("status-bar").classList.remove("visible");
+  }
+
+  // โหลดอัตโนมัติตอนเปิดหน้า
+  loadPhotos();
+
+  // รีเฟรชทุก 30 วินาที (ภาพใหม่จะขึ้นเอง)
+  setInterval(loadPhotos, 30000);
+</script>
+</body>
+</html>
