@@ -347,7 +347,8 @@
   // ══════════════════════════════════════════
   //  ⚙️  CONFIG — แก้ค่าตรงนี้เท่านั้น
   // ══════════════════════════════════════════
-  const FOLDER_ID = "13l00Iv4u-xb0iatGtXqO_ehhQ3ao7ROU";
+  const FOLDER_ID = "13l00Iv4u-xb0iatGtXqO_ehhQ3ao7ROU";  // โฟลเดอร์ใน Shared Drive
+  const DRIVE_ID  = "0APplQnlaY-wLUk9PVA";                 // ตัว Shared Drive เอง
   const API_KEY   = "AIzaSyAFFURN6dKU-2IgRdYOM0HKLX9BpCDUqlc";
   // ══════════════════════════════════════════
 
@@ -373,7 +374,7 @@
       `&supportsAllDrives=true` +
       `&includeItemsFromAllDrives=true` +
       `&corpora=drive` +
-      `&driveId=0APplQnlaY-wLUk9PVA` +
+      `&driveId=${DRIVE_ID}` +
       `&key=${API_KEY}`;
 
     try {
