@@ -348,7 +348,7 @@
   //  ⚙️  CONFIG — แก้ค่าตรงนี้เท่านั้น
   // ══════════════════════════════════════════
   const FOLDER_ID = "13l00Iv4u-xb0iatGtXqO_ehhQ3ao7ROU";
-  const API_KEY   = "AIzaSyAFFURN6dKU-2IgRdYOM0HKLX9BpCDUqlc";   // ← ใส่ API Key ที่นี่
+  const API_KEY   = "AIzaSyAFFURN6dKU-2IgRdYOM0HKLX9BpCDUqlc";
   // ══════════════════════════════════════════
 
   let photos = [];
@@ -372,6 +372,8 @@
       `&pageSize=200` +
       `&supportsAllDrives=true` +
       `&includeItemsFromAllDrives=true` +
+      `&corpora=drive` +
+      `&driveId=0APplQnlaY-wLUk9PVA` +
       `&key=${API_KEY}`;
 
     try {
